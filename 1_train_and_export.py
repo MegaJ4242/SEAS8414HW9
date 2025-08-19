@@ -52,9 +52,9 @@ def synthesize_dataset(n_legit: int = 1500, n_dga: int = 1500, seed: int = 42) -
     ]
     legit_tlds = ["com", "org", "net", "info"]
     for _ in range(n_legit):
-        l = int(rng.integers(4, 12))
-        token = "".join(rng.choice(syllables) for _ in range(max(2, l // 2)))
-        token = token[:l]
+        token_len = int(rng.integers(4, 12))
+        token = "".join(rng.choice(syllables) for _ in range(max(2, token_len // 2)))
+        token = token[:token_len]
         dom = f"{token}.{rng.choice(legit_tlds)}"
         first = dom.split(".")[0]
         rows.append({"domain": dom, "length": len(first), "entropy": shannon_entropy(first), "label": "legit"})
@@ -62,8 +62,8 @@ def synthesize_dataset(n_legit: int = 1500, n_dga: int = 1500, seed: int = 42) -
     # DGA: longer, higher entropy, more digits
     dga_tlds = ["xyz", "top", "site", "info"]
     for _ in range(n_dga):
-        l = int(rng.integers(10, 24))
-        dom = random_domain(l, tld=rng.choice(dga_tlds))
+        token_len = int(rng.integers(10, 24))
+        dom = random_domain(token_len, tld=rng.choice(dga_tlds))
         first = dom.split(".")[0]
         rows.append({"domain": dom, "length": len(first), "entropy": shannon_entropy(first), "label": "dga"})
 
@@ -81,8 +81,12 @@ def main():
 
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
-    artifacts_dir = Path("artifacts"); artifacts_dir.mkdir(exist_ok=True)
-    data_dir = Path("data"); data_dir.mkdir(exist_ok=True)
+
+    artifacts_dir = Path("artifacts")
+    artifacts_dir.mkdir(exist_ok=True)
+
+    data_dir = Path("data")
+    data_dir.mkdir(exist_ok=True)
 
     # 1) Build dataset
     n_legit = args.rows // 2
@@ -100,7 +104,8 @@ def main():
     hf["label"] = hf["label"].asfactor()
     train, test = hf.split_frame(ratios=[0.8], seed=args.seed)
 
-    x = ["length", "entropy"]; y = "label"
+    x = ["length", "entropy"]
+    y = "label"
     aml = H2OAutoML(
         max_runtime_secs=args.runtime,
         seed=args.seed,
