@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.log
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Caches
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Large binaries not needed for grading
+*.jar
